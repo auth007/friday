@@ -1,0 +1,42 @@
+[Unit]
+Description=Sjzy_Friday 漏洞管理平台
+Documentation=https://github.com/your-org/sjzy-friday
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/vlun/vulntrack
+
+# ── 环境变量（按实际修改）──
+Environment=PORT=5000
+Environment=DEBUG=false
+Environment=DB_PATH=/root/vlun/vulntrack/sjzy_friday.db
+Environment=WORKERS=4
+# Environment=SITE_URL=https://your-domain.com
+# Environment=FEISHU_APP_ID=cli_xxxxx
+# Environment=FEISHU_APP_SECRET=xxxxxxxx
+# Environment=SMTP_HOST=smtp.example.com
+# Environment=SMTP_PORT=465
+# Environment=SMTP_USER=user@example.com
+# Environment=SMTP_PASS=password
+
+ExecStart=/root/vlun/vulntrack/.venv/bin/gunicorn \
+    --workers 4 \
+    --bind 0.0.0.0:5000 \
+    --timeout 60 \
+    --access-logfile /var/log/sjzy-friday-access.log \
+    --error-logfile /var/log/sjzy-friday-error.log \
+    app:app
+
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sjzy-friday
+
+# 资源限制（可选）
+# LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
