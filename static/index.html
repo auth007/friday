@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sjzy_Friday · 漏洞管理平台</title>
+<!-- CSP meta tag as defence-in-depth (server header takes precedence) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#07090d;--bg1:#0d1117;--bg2:#161b22;--bg3:#1c2230;--bg4:#21262d;
+  --border:#21262d;--border2:#30363d;--border3:#3d444d;
+  --text:#e6edf3;--text2:#8b949e;--text3:#484f58;
+  --accent:#f78166;--accent2:#ff9a6c;
+  --red:#f85149;--orange:#e3b341;--yellow:#d29922;--green:#3fb950;
+  --blue:#58a6ff;--purple:#bc8cff;--teal:#39c5cf;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans SC',sans-serif;
+  --radius:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--sans);background:var(--bg0);color:var(--text);min-height:100vh;display:flex;font-size:13.5px;line-height:1.5;}
+/* ─── SIDEBAR ─── */
+.sidebar{width:228px;min-height:100vh;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;}
+.logo{padding:18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;user-select:none;}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#f78166,#d29922);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:11px;color:#000;flex-shrink:0;box-shadow:0 0 20px rgba(247,129,102,.25);}
+.logo-text{font-weight:700;font-size:14px;letter-spacing:.3px;}
+.logo-ver{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.nav-sect{padding:12px 10px 4px;}
+.nav-lbl{font-size:10px;color:var(--text3);letter-spacing:1.8px;text-transform:uppercase;padding:0 8px;margin-bottom:5px;font-family:var(--mono);}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;cursor:pointer;color:var(--text2);transition:all .12s;font-size:13px;margin-bottom:1px;position:relative;user-select:none;}
+.nav-item:hover{background:var(--bg2);color:var(--text);}
+.nav-item.active{background:rgba(247,129,102,.1);color:var(--accent);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:55%;background:var(--accent);border-radius:0 2px 2px 0;}
+.nav-ico{width:15px;height:15px;flex-shrink:0;}
+.nbadge{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;font-family:var(--mono);}
+.sidebar-ft{margin-top:auto;padding:10px;border-top:1px solid var(--border);}
+.user-tile{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;}
+.ava{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
+.ava img{width:100%;height:100%;object-fit:cover;}
+.uname{font-size:13px;font-weight:600;}
+.urole{font-size:10px;color:var(--accent);font-family:var(--mono);}
+.btn-logout{width:100%;margin-top:6px;padding:7px;background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--sans);transition:all .12s;}
+.btn-logout:hover{background:var(--bg2);color:var(--text);}
+/* ─── MAIN ─── */
+.main{margin-left:228px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{height:54px;background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:12px;position:sticky;top:0;z-index:100;}
+.pg-title{font-size:15px;font-weight:700;}
+.pg-sub{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.btn{padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12.5px;font-family:var(--sans);font-weight:500;transition:all .12s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#000;font-weight:600;}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(247,129,102,.3);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--bg2);color:var(--text);}
+.btn-danger{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.25);}
+.btn-danger:hover{background:rgba(248,81,73,.2);}
+.btn-sm{padding:5px 10px;font-size:11.5px;}
+.btn-feishu{background:#3370ff;color:#fff;border:none;}
+.btn-feishu:hover{background:#2860ee;transform:translateY(-1px);}
+.content{padding:22px;flex:1;}
+.view{display:none;}
+.view.active{display:block;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* ─── CARDS ─── */
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);}
+.card-body{padding:18px;}
+/* ─── STATS ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
+.stat-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s;}
+.stat-card:hover{border-color:var(--border3);transform:translateY(-1px);}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc-total::after{background:var(--blue);}
+.sc-open::after{background:var(--red);}
+.sc-fixing::after{background:var(--orange);}
+.sc-fixed::after{background:var(--green);}
+.sc-closed::after{background:var(--text3);}
+.stat-lbl{font-size:11px;color:var(--text2);margin-bottom:8px;}
+.stat-num{font-size:32px;font-weight:700;font-family:var(--mono);line-height:1;}
+.sc-total .stat-num{color:var(--blue);}
+.sc-open .stat-num{color:var(--red);}
+.sc-fixing .stat-num{color:var(--orange);}
+.sc-fixed .stat-num{color:var(--green);}
+.sc-closed .stat-num{color:var(--text2);}
+.stat-sub{font-size:10.5px;color:var(--text3);margin-top:6px;font-family:var(--mono);}
+/* ─── CHARTS ─── */
+.charts-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:18px;}
+.mini-chart{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+.mini-chart-title{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.3px;margin-bottom:14px;}
+.bar-chart-h{display:flex;flex-direction:column;gap:8px;}
+.bch-row{display:flex;align-items:center;gap:8px;}
+.bch-lbl{font-size:11px;color:var(--text2);font-family:var(--mono);width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;}
+.bch-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.bch-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+.bch-num{font-size:11px;color:var(--text2);font-family:var(--mono);width:20px;text-align:right;flex-shrink:0;}
+.sev-donut{display:flex;flex-direction:column;gap:7px;}
+.sev-row{display:flex;align-items:center;gap:8px;}
+.sev-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.sev-name{font-size:11.5px;flex:1;font-family:var(--mono);}
+.sev-bar-bg{width:80px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.sev-bar-fill{height:100%;border-radius:3px;}
+.sev-cnt{font-size:11px;color:var(--text2);font-family:var(--mono);width:20px;text-align:right;}
+.trend-bars{display:flex;align-items:flex-end;gap:4px;height:60px;}
+.trend-bar{flex:1;border-radius:2px 2px 0 0;min-height:3px;cursor:pointer;transition:opacity .2s;}
+.trend-bar:hover{opacity:.7;}
+.trend-labels{display:flex;gap:4px;margin-top:4px;}
+.trend-lbl{flex:1;font-size:9px;color:var(--text3);text-align:center;font-family:var(--mono);}
+/* ─── FILTER ROW ─── */
+.filter-row{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.finput{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 11px;border-radius:6px;font-size:12.5px;font-family:var(--sans);transition:border-color .12s;}
+.finput:focus{outline:none;border-color:var(--accent);}
+.fselect{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 11px;border-radius:6px;font-size:12.5px;font-family:var(--sans);cursor:pointer;min-width:130px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b949e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.fselect:focus{outline:none;border-color:var(--accent);}
+.fsearch{width:240px;}
+/* ─── TABLE ─── */
+.tbl-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{background:var(--bg2);padding:10px 14px;text-align:left;font-size:10.5px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);font-family:var(--mono);white-space:nowrap;font-weight:600;}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tbody tr{cursor:pointer;transition:background .1s;}
+.tbl tbody tr:hover{background:rgba(255,255,255,.025);}
+.tbl .actions{opacity:0;transition:opacity .15s;}
+.tbl tbody tr:hover .actions{opacity:1;}
+/* ─── BADGES ─── */
+.sev-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:10.5px;font-weight:700;font-family:var(--mono);letter-spacing:.2px;}
+.sv-critical{background:rgba(248,81,73,.12);color:#f85149;border:1px solid rgba(248,81,73,.25);}
+.sv-high{background:rgba(227,179,65,.12);color:#e3b341;border:1px solid rgba(227,179,65,.25);}
+.sv-medium{background:rgba(210,153,34,.1);color:#d29922;border:1px solid rgba(210,153,34,.25);}
+.sv-low{background:rgba(63,185,80,.1);color:#3fb950;border:1px solid rgba(63,185,80,.25);}
+.st-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-family:var(--mono);}
+.st-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.st-open{background:rgba(248,81,73,.08);color:var(--red);}
+.st-open .st-dot{background:var(--red);animation:blink 2s infinite;}
+.st-fixing{background:rgba(227,179,65,.08);color:var(--orange);}
+.st-fixing .st-dot{background:var(--orange);}
+.st-fixed{background:rgba(63,185,80,.08);color:var(--green);}
+.st-fixed .st-dot{background:var(--green);}
+.st-closed{background:rgba(139,148,158,.08);color:var(--text2);}
+.st-closed .st-dot{background:var(--text2);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.cvss-val{font-family:var(--mono);font-weight:700;font-size:13.5px;}
+.cv-c{color:#f85149;}.cv-h{color:#e3b341;}.cv-m{color:#d29922;}.cv-l{color:#3fb950;}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:11px;background:var(--bg3);color:var(--text2);border:1px solid var(--border);font-family:var(--mono);}
+.proj-tag{border-radius:4px;font-size:11px;padding:2px 8px;font-family:var(--mono);font-weight:500;}
+/* ─── FORM ─── */
+.form-wrap{max-width:860px;}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fg-full{grid-column:1/-1;}
+.flabel{font-size:11.5px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:4px;}
+.flabel .req{color:var(--red);}
+.finp,.fsel,.ftxt{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:9px 12px;border-radius:6px;font-size:13px;font-family:var(--sans);transition:border-color .12s;width:100%;}
+.finp:focus,.fsel:focus,.ftxt:focus{outline:none;border-color:var(--accent);background:var(--bg3);}
+.finp::placeholder,.ftxt::placeholder{color:var(--text3);}
+.ftxt{resize:vertical;min-height:90px;line-height:1.65;}
+.fsel{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b949e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.code-inp{font-family:var(--mono);font-size:12px;}
+.sev-selector{display:flex;gap:6px;flex-wrap:wrap;}
+.sev-opt{padding:5px 13px;border-radius:5px;cursor:pointer;font-size:11.5px;font-weight:600;font-family:var(--mono);border:1px solid var(--border2);color:var(--text3);background:var(--bg2);transition:all .12s;user-select:none;}
+.sev-opt:hover{border-color:var(--border3);color:var(--text2);}
+.sel-critical{background:rgba(248,81,73,.15)!important;color:var(--red)!important;border-color:rgba(248,81,73,.5)!important;}
+.sel-high{background:rgba(227,179,65,.15)!important;color:var(--orange)!important;border-color:rgba(227,179,65,.5)!important;}
+.sel-medium{background:rgba(210,153,34,.12)!important;color:var(--yellow)!important;border-color:rgba(210,153,34,.45)!important;}
+.sel-low{background:rgba(63,185,80,.12)!important;color:var(--green)!important;border-color:rgba(63,185,80,.4)!important;}
+.cvss-row{display:flex;align-items:center;gap:10px;}
+.cvss-big{font-family:var(--mono);font-size:22px;font-weight:700;min-width:46px;text-align:center;transition:color .2s;}
+input[type=range]{flex:1;accent-color:var(--accent);height:4px;cursor:pointer;}
+/* ─── NOTIFY PANEL ─── */
+.notify-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.notify-panel-hd{padding:12px 16px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:600;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;font-family:var(--mono);}
+.notify-panel-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.notify-group{border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.notify-group-hd{padding:10px 14px;background:var(--bg3);display:flex;align-items:center;gap:8px;}
+.notify-group-hd .chk-lbl{font-size:13px;font-weight:500;flex:1;}
+.notify-items{padding:10px 14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);}
+.notify-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);}
+.notify-item.checked-item{border-color:rgba(247,129,102,.3);background:rgba(247,129,102,.04);}
+.ni-name{flex:1;font-size:12.5px;font-weight:500;}
+.ni-meta{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.ni-check{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.form-actions{display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--border);margin-top:4px;}
+/* ─── OVERLAY / MODAL ─── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.overlay.open{display:flex;}
+.modal{background:var(--bg1);border:1px solid var(--border2);border-radius:10px;width:700px;max-height:88vh;overflow-y:auto;animation:mslide .18s ease;}
+.modal.modal-lg{width:820px;}
+.modal.modal-sm{width:460px;}
+@keyframes mslide{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.modal-hd{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:var(--bg1);z-index:1;}
+.modal-hd h2{font-size:16px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;}
+.modal-close:hover{background:var(--bg3);color:var(--text);}
+.modal-body{padding:22px;}
+.modal-ft{padding:16px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--bg1);}
+/* detail modal */
+.detail-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;}
+.dm-item label{font-size:10.5px;color:var(--text3);font-family:var(--mono);display:block;margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase;}
+.dm-item .val{font-size:13px;}
+.ds{margin-bottom:16px;}
+.ds h4{font-size:10.5px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;font-family:var(--mono);margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.ds p{font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;}
+.code-blk{background:var(--bg0);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-family:var(--mono);font-size:11.5px;color:var(--teal);white-space:pre-wrap;word-break:break-all;line-height:1.7;}
+.edit-bar{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+.eb-group{display:flex;flex-direction:column;gap:5px;}
+.eb-lbl{font-size:10.5px;color:var(--text3);font-family:var(--mono);}
+/* ─── LOGIN ─── */
+.login-page{position:fixed;inset:0;background:var(--bg0);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-card{background:var(--bg1);border:1px solid var(--border2);border-radius:12px;padding:36px;width:400px;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-mark{width:52px;height:52px;background:linear-gradient(135deg,#f78166,#d29922);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:900;font-size:14px;color:#000;margin:0 auto 12px;box-shadow:0 0 30px rgba(247,129,102,.3);}
+.login-title{font-size:20px;font-weight:700;}
+.login-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:3px;}
+.login-form{display:flex;flex-direction:column;gap:12px;}
+.lf-lbl{font-size:11.5px;color:var(--text2);display:block;margin-bottom:4px;}
+.lf-submit{background:var(--accent);color:#000;border:none;border-radius:7px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.lf-submit:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 6px 16px rgba(247,129,102,.3);}
+.login-divider{display:flex;align-items:center;gap:10px;margin:4px 0;}
+.login-divider span{font-size:11px;color:var(--text3);white-space:nowrap;}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border2);}
+.btn-feishu-login{width:100%;padding:11px;background:#3370ff;color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-feishu-login:hover{background:#2860ee;transform:translateY(-1px);}
+/* ─── USER MGMT ─── */
+.user-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.user-row:last-child{border-bottom:none;}
+.ava-sm{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
+.ava-sm img{width:100%;height:100%;object-fit:cover;}
+.uinfo{flex:1;}
+.uinfo .un{font-size:13px;font-weight:600;}
+.uinfo .ue{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.perm-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.pt{padding:2px 8px;border-radius:3px;font-size:10.5px;font-weight:600;font-family:var(--mono);border:1px solid transparent;user-select:none;}
+.pt-on{background:rgba(63,185,80,.12);color:var(--green);border-color:rgba(63,185,80,.3);}
+.pt-off{background:var(--bg3);color:var(--text3);border-color:var(--border);}
+.proj-restrict{font-size:11px;color:var(--text2);font-family:var(--mono);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.proj-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:1px 8px;font-size:10.5px;font-family:var(--mono);color:var(--text2);}
+.auth-badge{font-size:10px;padding:1px 6px;border-radius:3px;font-family:var(--mono);font-weight:600;}
+.auth-local{background:rgba(88,166,255,.12);color:var(--blue);border:1px solid rgba(88,166,255,.3);}
+.auth-feishu{background:rgba(51,112,255,.12);color:#7ca4ff;border:1px solid rgba(51,112,255,.3);}
+/* ─── PROJ MGMT ─── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.proj-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .15s,transform .15s;}
+.proj-card:hover{border-color:var(--border3);transform:translateY(-1px);}
+.proj-card-top{height:4px;}
+.proj-card-body{padding:16px 18px;}
+.proj-card-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.proj-card-desc{font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5;}
+.proj-meta{display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--text2);}
+.proj-card-ft{padding:11px 18px;border-top:1px solid var(--border);display:flex;gap:6px;}
+/* ─── NOTIFY CONFIG ─── */
+.ntf-sources{display:flex;flex-direction:column;gap:12px;}
+.ntf-src{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.ntf-src-hd{padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .12s;}
+.ntf-src-hd:hover{background:var(--bg2);}
+.ntf-src-ico{font-size:18px;}
+.ntf-src-info{flex:1;}
+.ntf-src-name{font-size:13.5px;font-weight:600;}
+.ntf-src-url{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.ntf-src-body{padding:14px 18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+.toggle-sw{width:38px;height:21px;background:var(--bg4);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;border:1px solid var(--border2);flex-shrink:0;}
+.toggle-sw.on{background:var(--green);border-color:var(--green);}
+.toggle-sw::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+.toggle-sw.on::after{transform:translateX(17px);}
+.ntf-label{display:flex;align-items:center;gap:8px;font-size:13px;}
+/* ─── TOAST ─── */
+.toast-stack{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--bg2);border:1px solid var(--border2);border-radius:7px;padding:11px 15px;font-size:12.5px;display:flex;align-items:center;gap:9px;min-width:260px;max-width:340px;animation:tIn .25s ease;box-shadow:0 8px 20px rgba(0,0,0,.5);}
+@keyframes tIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+.toast.ts{border-left:3px solid var(--green);}
+.toast.te{border-left:3px solid var(--red);}
+.toast.ti{border-left:3px solid var(--blue);}
+.toast.tw{border-left:3px solid var(--orange);}
+/* ─── MISC ─── */
+.cb-row{display:flex;align-items:center;gap:7px;cursor:pointer;}
+.cb-row input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;}
+.cb-lbl{font-size:13px;}
+.section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-row h2{font-size:14px;font-weight:700;}
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty .ei{font-size:40px;margin-bottom:10px;}
+.empty p{font-size:13px;}
+.color-opt{transition:all .12s;}
+.color-opt.selected{box-shadow:0 0 0 2px white,0 0 0 4px rgba(255,255,255,.4);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg1);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--border3);}
+
+/* ═══════════════════════════════════════════
+   移动端响应式 — Sjzy_Friday
+   断点：768px (平板以下), 480px (手机)
+═══════════════════════════════════════════ */
+
+/* 汉堡按钮（桌面隐藏） */
+.hamburger{display:none;flex-direction:column;gap:5px;padding:8px;cursor:pointer;border:none;background:transparent;flex-shrink:0;}
+.hamburger span{display:block;width:20px;height:2px;background:var(--text2);border-radius:2px;transition:all .25s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* 遮罩层（移动端侧边栏展开时） */
+.sidebar-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;backdrop-filter:blur(2px);}
+.sidebar-mask.show{display:block;}
+
+@media(max-width:768px){
+  /* 侧边栏改为抽屉 */
+  .sidebar{
+    transform:translateX(-100%);
+    transition:transform .25s cubic-bezier(.4,0,.2,1);
+    z-index:200;
+    width:240px;
+  }
+  .sidebar.mobile-open{transform:translateX(0);}
+
+  /* 主内容全宽 */
+  .main{margin-left:0;}
+
+  /* 顶栏加汉堡 */
+  .hamburger{display:flex;}
+  .topbar{padding:0 14px;gap:8px;}
+  .pg-sub{display:none;}
+  .topbar-right{gap:6px;}
+  .topbar-right .btn-ghost{display:none;}  /* 隐藏刷新按钮，省空间 */
+
+  /* 登录卡片 */
+  .login-card{width:calc(100vw - 32px);max-width:400px;padding:28px 20px;}
+
+  /* 统计卡片：2列 */
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .stats-grid .stat-card:last-child{grid-column:1/-1;}
+
+  /* 图表行：单列堆叠 */
+  .charts-row{grid-template-columns:1fr;}
+
+  /* 漏洞表格：卡片化 */
+  .tbl-wrap{border:none;background:transparent;}
+  .tbl thead{display:none;}
+  .tbl tbody tr{
+    display:block;
+    background:var(--bg1);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-bottom:10px;
+    padding:12px 14px;
+    cursor:pointer;
+  }
+  .tbl tbody tr:hover{background:var(--bg2);}
+  .tbl td{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    padding:4px 0;
+    border:none;
+    font-size:12.5px;
+  }
+  .tbl td::before{
+    content:attr(data-label);
+    font-size:10px;
+    color:var(--text3);
+    font-family:var(--mono);
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    width:60px;
+    flex-shrink:0;
+    padding-top:2px;
+  }
+  /* 操作列隐藏（手机端点行进详情） */
+  .tbl td.actions{display:none;}
+
+  /* 筛选行：换行 */
+  .filter-row{gap:6px;}
+  .filter-row .finput{width:100%;}
+  .filter-row .fselect,.filter-row select{flex:1;min-width:0;}
+
+  /* 内容 padding 收窄 */
+  .content{padding:14px;}
+
+  /* 详情弹窗全屏 */
+  .modal,.modal.modal-lg,.modal.modal-sm{
+    width:100vw;max-height:100dvh;height:100dvh;
+    border-radius:0;margin:0;
+    display:flex;flex-direction:column;
+  }
+  .modal-body{flex:1;overflow-y:auto;}
+  .overlay{align-items:flex-end;}
+
+  /* 详情 meta 2列 */
+  .detail-meta{grid-template-columns:repeat(2,1fr);}
+
+  /* 编辑栏换行 */
+  .edit-bar{flex-direction:column;align-items:stretch;}
+  .edit-bar .eb-group{flex-direction:row;align-items:center;gap:8px;}
+  .edit-bar .eb-group .fsel{flex:1;}
+
+  /* 表单2列 → 1列 */
+  .fg-grid{grid-template-columns:1fr !important;}
+  .fg-full{grid-column:1 !important;}
+
+  /* 用户行自适应 */
+  .user-row{flex-wrap:wrap;gap:8px;}
+  .perm-tags{gap:4px;}
+
+  /* 仪表盘筛选行 */
+  #dashProjFilter{width:100%;}
+
+  /* toast 左右撑满 */
+  .toast-stack{left:14px;right:14px;bottom:14px;}
+  .toast{min-width:0;max-width:100%;}
+
+  /* section-row 按钮小一点 */
+  .section-row .btn{font-size:11px;padding:5px 10px;}
+}
+
+@media(max-width:480px){
+  /* 极小屏：统计卡片全宽 */
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .stat-num{font-size:26px;}
+
+  /* 严重级别选择器 */
+  .sev-selector{gap:6px;}
+  .sev-opt{padding:6px 8px;font-size:12px;}
+
+  /* topbar 字号 */
+  .pg-title{font-size:13px;}
+
+  /* 项目卡片单列 */
+  .proj-grid{grid-template-columns:1fr;}
+
+  /* 登录 demo 账号按钮 */
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-mark">SF</div>
+      <div class="login-title">Sjzy_Friday</div>
+      <div class="login-sub">// 漏洞管理平台 v2.1</div>
+    </div>
+    <div class="login-form">
+      <div><label class="lf-lbl">用户名</label><input class="finp" id="lUser" placeholder="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div><label class="lf-lbl">密码</label><input class="finp" type="password" id="lPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="lf-submit" onclick="doLogin()">登录系统</button>
+      <div id="loginErr" style="color:var(--red);font-size:12px;text-align:center;display:none;margin-top:4px"></div>
+      <div class="login-divider" id="feishuDivider" style="display:none"><span>或</span></div>
+      <button class="btn-feishu-login" id="feishuLoginBtn" style="display:none" onclick="doFeishuLogin()">
+        <svg width="18" height="18" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="8" fill="#fff"/><path d="M24 8C15.163 8 8 15.163 8 24s7.163 16 16 16 16-7.163 16-16S32.837 8 24 8z" fill="#3370FF"/><path d="M20 18l8 6-8 6V18z" fill="#fff"/></svg>
+        飞书账号登录
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 移动端遮罩 -->
+<div class="sidebar-mask" id="sidebarMask" onclick="closeSidebar()"></div>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav class="sidebar" id="sidebar" style="display:none">
+  <div class="logo">
+    <div class="logo-mark">SF</div>
+    <div><div class="logo-text">Sjzy_Friday</div><div class="logo-ver">v2.1 // 漏洞管理平台</div></div>
+  </div>
+  <div class="nav-sect">
+    <div class="nav-lbl">概览</div>
+    <div class="nav-item active" id="nav-dashboard" onclick="nav('dashboard',this)">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A1.5 1.5 0 012.5 1h3A1.5 1.5 0 017 2.5v3A1.5 1.5 0 015.5 7h-3A1.5 1.5 0 011 5.5v-3zm8 0A1.5 1.5 0 0110.5 1h3A1.5 1.5 0 0115 2.5v3A1.5 1.5 0 0113.5 7h-3A1.5 1.5 0 019 5.5v-3zm-8 8A1.5 1.5 0 012.5 9h3A1.5 1.5 0 017 10.5v3A1.5 1.5 0 015.5 15h-3A1.5 1.5 0 011 13.5v-3zm8 0A1.5 1.5 0 0110.5 9h3A1.5 1.5 0 0115 10.5v3A1.5 1.5 0 0113.5 15h-3A1.5 1.5 0 019 13.5v-3z"/></svg>
+      仪表盘
+    </div>
+  </div>
+  <div class="nav-sect">
+    <div class="nav-lbl">漏洞</div>
+    <div class="nav-item" id="nav-vulnList" onclick="nav('vulnList',this)">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><path d="M8.982 1.566a1.13 1.13 0 00-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 01-1.1 0L7.1 5.995A.905.905 0 018 5zm.002 6a1 1 0 110 2 1 1 0 010-2z"/></svg>
+      漏洞列表 <span class="nbadge" id="nb-open">0</span>
+    </div>
+    <div class="nav-item" id="nav-submit" onclick="nav('submit',this)" style="display:none">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 110 16A8 8 0 018 0zm.5 4.5a.5.5 0 00-1 0V7H5a.5.5 0 000 1h2.5v2.5a.5.5 0 001 0V8H11a.5.5 0 000-1H8.5V4.5z"/></svg>
+      提交漏洞
+    </div>
+  </div>
+  <div class="nav-sect" id="adminNav" style="display:none">
+    <div class="nav-lbl">管理</div>
+    <div class="nav-item" id="nav-projects" onclick="nav('projects',this)">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 012.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0115 5.5v7a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z"/></svg>
+      项目管理
+    </div>
+    <div class="nav-item" id="nav-users" onclick="nav('users',this)">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 017 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002A.274.274 0 0115 13H7.022zM11 7a2 2 0 100-4 2 2 0 000 4zm-3.859 1A3.5 3.5 0 1112.5 8h-5.359zM6.5 8a3.5 3.5 0 10-3.5 3.5c.58 0 1.12-.154 1.6-.413A5.053 5.053 0 016.5 8z"/></svg>
+      用户权限
+    </div>
+    <div class="nav-item" id="nav-notify" onclick="nav('notify',this)">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="currentColor"><path d="M8 16a2 2 0 002-2H6a2 2 0 002 2zm.995-14.901a1 1 0 10-1.99 0A5.002 5.002 0 003 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C11.134 8.197 11 6.628 11 6a5.002 5.002 0 00-2.005-4.901z"/></svg>
+      通知配置
+    </div>
+  </div>
+  <div class="sidebar-ft">
+    <div class="user-tile">
+      <div class="ava" id="sbAva" style="background:#58a6ff">A</div>
+      <div><div class="uname" id="sbName">Admin</div><div class="urole" id="sbRole">ADMIN</div></div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">← 退出登录</button>
+  </div>
+</nav>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main" id="main" style="display:none">
+  <div class="topbar">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+    <div><div class="pg-title" id="pgTitle">仪表盘</div><div class="pg-sub" id="pgSub">dashboard · overview</div></div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="refreshCurrentView()">↺ 刷新</button>
+      <button class="btn btn-primary btn-sm" id="topSubmitBtn" onclick="nav('submit',document.getElementById('nav-submit'))" style="display:none">+ 提交漏洞</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ─── DASHBOARD ─── -->
+    <div class="view active" id="view-dashboard">
+      <div class="filter-row" style="margin-bottom:16px">
+        <span style="font-size:12px;color:var(--text2)">项目筛选：</span>
+        <select class="fselect" id="dashProjFilter" onchange="renderDashboard()"><option value="">全部项目</option></select>
+        <div style="margin-left:auto;font-size:11px;color:var(--text3);font-family:var(--mono)">更新于 <span style="color:var(--text2)" id="dashTime"></span></div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="charts-row" id="chartsRow"></div>
+      <div class="section-row">
+        <h2>最近漏洞</h2>
+        <button class="btn btn-ghost btn-sm" onclick="nav('vulnList',document.getElementById('nav-vulnList'))">查看全部 →</button>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>ID</th><th>标题</th><th>级别</th><th>CVSS</th><th>项目</th><th>状态</th><th>责任人</th><th>提交日期</th></tr></thead>
+          <tbody id="dashTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── PENDING AUTH ─── -->
+    <div class="view" id="view-pending">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:20px;text-align:center;">
+        <div style="font-size:56px">🔒</div>
+        <div style="font-size:20px;font-weight:700">账号待授权</div>
+        <div style="font-size:13.5px;color:var(--text2);max-width:420px;line-height:1.8">
+          你已通过飞书身份验证，但管理员尚未为你分配任何权限。<br>
+          请联系管理员在「用户权限」页面为你的账号授予相应权限。
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 20px;font-family:var(--mono);font-size:12px;color:var(--text3)">
+          账号：<span id="pendingUsername" style="color:var(--text)"></span>
+        </div>
+        <button class="btn btn-ghost" onclick="pollPermissions()">🔄 检查权限是否已更新</button>
+        <div id="pollMsg" style="font-size:12px;color:var(--text3)"></div>
+      </div>
+    </div>
+
+    <!-- ─── VULN LIST ─── -->
+    <div class="view" id="view-vulnList">
+      <div class="filter-row">
+        <input class="finput fsearch" placeholder="🔍 搜索漏洞标题、ID…" id="vsSearch" oninput="renderVulnList()">
+        <select class="fselect" id="vsProj" onchange="renderVulnList()"><option value="">全部项目</option></select>
+        <select class="fselect" id="vsSev" onchange="renderVulnList()">
+          <option value="">全部级别</option>
+          <option>严重</option><option>高危</option><option>中危</option><option>低危</option>
+        </select>
+        <select class="fselect" id="vsSta" onchange="renderVulnList()">
+          <option value="">全部状态</option>
+          <option>待修复</option><option>修复中</option><option>已修复</option><option>已关闭</option>
+        </select>
+        <span style="margin-left:auto;font-size:12px;color:var(--text2)">共 <b id="vulnCount" style="font-family:var(--mono);color:var(--text)">0</b> 条</span>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>ID</th><th>漏洞标题</th><th>级别</th><th>CVSS</th><th>项目</th><th>影响系统</th><th>状态</th><th>责任人</th><th>提交日期</th><th></th></tr></thead>
+          <tbody id="vulnTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── SUBMIT ─── -->
+    <div class="view" id="view-submit">
+      <div class="form-wrap">
+        <div class="fg-grid">
+          <div class="fg fg-full">
+            <label class="flabel">漏洞标题 <span class="req">*</span></label>
+            <input class="finp" id="fTitle" placeholder="简洁描述漏洞，如：登录接口存在 SQL 注入漏洞" maxlength="300">
+          </div>
+          <div class="fg">
+            <label class="flabel">严重级别 <span class="req">*</span></label>
+            <div class="sev-selector">
+              <div class="sev-opt" onclick="pickSev(this,'严重','critical')">严重</div>
+              <div class="sev-opt" onclick="pickSev(this,'高危','high')">高危</div>
+              <div class="sev-opt sel-medium" onclick="pickSev(this,'中危','medium')">中危</div>
+              <div class="sev-opt" onclick="pickSev(this,'低危','low')">低危</div>
+            </div>
+            <input type="hidden" id="fSev" value="中危">
+          </div>
+          <div class="fg">
+            <label class="flabel">CVSS 评分</label>
+            <div class="cvss-row">
+              <span class="cvss-big cv-m" id="cvssDisp">5.0</span>
+              <input type="range" min="0" max="10" step="0.1" value="5.0" id="cvssRange" oninput="updateCVSS(this.value)">
+              <span style="font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap">/ 10.0</span>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="flabel">所属项目 <span class="req">*</span></label>
+            <select class="fsel" id="fProj" onchange="loadProjectAssignees()"><option value="">请选择项目…</option></select>
+          </div>
+          <div class="fg">
+            <label class="flabel">责任人</label>
+            <select class="fsel" id="fAssignee"><option value="">请选择责任人…</option></select>
+          </div>
+          <div class="fg">
+            <label class="flabel">影响系统 / 组件 <span class="req">*</span></label>
+            <input class="finp" id="fComp" placeholder="如：auth-service v2.3, user-center" maxlength="300">
+          </div>
+          <div class="fg fg-full">
+            <label class="flabel">漏洞描述 <span class="req">*</span></label>
+            <textarea class="ftxt" id="fDesc" rows="5" placeholder="详细描述漏洞成因、位置及潜在危害…" maxlength="10000"></textarea>
+          </div>
+          <div class="fg fg-full">
+            <label class="flabel">漏洞验证 (PoC)</label>
+            <textarea class="ftxt code-inp" id="fPoc" rows="4" placeholder="提供复现步骤或 Payload…" maxlength="10000"></textarea>
+          </div>
+          <div class="fg fg-full">
+            <label class="flabel">修复建议</label>
+            <textarea class="ftxt" id="fFix" rows="3" placeholder="针对该漏洞的具体修复方案…" maxlength="5000"></textarea>
+          </div>
+          <div class="fg fg-full">
+            <label class="flabel" style="margin-bottom:10px">通知配置</label>
+            <div class="notify-panel">
+              <div class="notify-panel-hd">// 选择发送通知的飞书机器人 &amp; 邮箱</div>
+              <div class="notify-panel-body">
+                <div class="notify-group">
+                  <div class="notify-group-hd">
+                    <span style="font-size:18px">🤖</span>
+                    <span class="chk-lbl">飞书机器人</span>
+                    <span style="font-size:11px;color:var(--text3);font-family:var(--mono)" id="feishuSelectedCount">0 个已选</span>
+                  </div>
+                  <div class="notify-items" id="feishuItems"></div>
+                </div>
+                <div class="notify-group">
+                  <div class="notify-group-hd">
+                    <span style="font-size:18px">📧</span>
+                    <span class="chk-lbl">邮箱通知</span>
+                    <span style="font-size:11px;color:var(--text3);font-family:var(--mono)" id="emailSelectedCount">0 个已选</span>
+                  </div>
+                  <div class="notify-items" id="emailItems"></div>
+                </div>
+                <label class="cb-row" style="margin-top:4px">
+                  <input type="checkbox" id="notifyOnClose">
+                  <span class="cb-lbl" style="font-size:13px">漏洞关闭时再次通知（携带直达链接）</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="submitVuln()">提交漏洞</button>
+          <button class="btn btn-ghost" onclick="resetForm()">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PROJECTS ─── -->
+    <div class="view" id="view-projects">
+      <div class="section-row"><h2>项目管理</h2><button class="btn btn-primary btn-sm" onclick="openAddProject()">+ 新建项目</button></div>
+      <div class="proj-grid" id="projGrid"></div>
+    </div>
+
+    <!-- ─── USERS ─── -->
+    <div class="view" id="view-users">
+      <div class="section-row"><h2>用户权限管理</h2><button class="btn btn-primary btn-sm" onclick="openAddUser()">+ 添加用户</button></div>
+      <div class="card"><div class="card-body" style="padding:6px 18px"><div id="userListEl"></div></div></div>
+    </div>
+
+    <!-- ─── NOTIFY ─── -->
+    <div class="view" id="view-notify">
+      <div class="section-row"><h2>通知渠道配置</h2><button class="btn btn-primary btn-sm" onclick="openAddNotify()">+ 添加通知源</button></div>
+      <div class="ntf-sources" id="ntfSources"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Detail Modal -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-hd">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span class="tag" id="dmId"></span>
+          <span id="dmSev"></span><span id="dmSta"></span>
+        </div>
+        <h2 id="dmTitle" style="font-size:17px;line-height:1.4"></h2>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('detailOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-meta" id="dmMeta"></div>
+      <div class="ds"><h4>漏洞描述</h4><p id="dmDesc"></p></div>
+      <div class="ds" id="dmPocSec"><h4>漏洞验证 (PoC)</h4><div class="code-blk" id="dmPoc"></div></div>
+      <div class="ds" id="dmFixSec"><h4>修复建议</h4><p id="dmFixTxt"></p></div>
+      <div class="divider"></div>
+      <div id="dmEditBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Project Modal -->
+<div class="overlay" id="projOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-hd"><h2 id="projModalTitle">新建项目</h2><button class="modal-close" onclick="closeOverlay('projOverlay')">✕</button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div class="fg"><label class="flabel">项目名称 <span class="req">*</span></label><input class="finp" id="pm-name" placeholder="Project Alpha" maxlength="100"></div>
+      <div class="fg"><label class="flabel">项目描述</label><textarea class="ftxt" id="pm-desc" rows="2" placeholder="项目用途简介…" maxlength="500"></textarea></div>
+      <div class="fg"><label class="flabel">颜色标签</label>
+        <div style="display:flex;gap:8px" id="pm-colors">
+          <div class="color-opt selected" onclick="pickColor(this,'#58a6ff')" style="width:26px;height:26px;border-radius:6px;background:#58a6ff;cursor:pointer;" title="蓝"></div>
+          <div class="color-opt" onclick="pickColor(this,'#3fb950')" style="width:26px;height:26px;border-radius:6px;background:#3fb950;cursor:pointer;" title="绿"></div>
+          <div class="color-opt" onclick="pickColor(this,'#f78166')" style="width:26px;height:26px;border-radius:6px;background:#f78166;cursor:pointer;" title="橙红"></div>
+          <div class="color-opt" onclick="pickColor(this,'#bc8cff')" style="width:26px;height:26px;border-radius:6px;background:#bc8cff;cursor:pointer;" title="紫"></div>
+          <div class="color-opt" onclick="pickColor(this,'#39c5cf')" style="width:26px;height:26px;border-radius:6px;background:#39c5cf;cursor:pointer;" title="青"></div>
+          <div class="color-opt" onclick="pickColor(this,'#e3b341')" style="width:26px;height:26px;border-radius:6px;background:#e3b341;cursor:pointer;" title="黄"></div>
+        </div>
+        <input type="hidden" id="pm-color" value="#58a6ff">
+      </div>
+      <div class="fg"><label class="flabel">项目成员（责任人池）</label>
+        <div id="pm-members" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px">
+          <input class="finp" id="pm-newMember" placeholder="输入成员姓名" style="flex:1" maxlength="50" onkeydown="if(event.key==='Enter')addProjectMember()">
+          <button class="btn btn-ghost btn-sm" onclick="addProjectMember()">添加</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeOverlay('projOverlay')">取消</button>
+      <button class="btn btn-primary" onclick="saveProject()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="overlay" id="userOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-hd"><h2>添加用户</h2><button class="modal-close" onclick="closeOverlay('userOverlay')">✕</button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div class="fg"><label class="flabel">用户名 <span class="req">*</span></label><input class="finp" id="um-name" placeholder="username" maxlength="64"></div>
+      <div class="fg"><label class="flabel">邮箱 <span class="req">*</span></label><input class="finp" id="um-email" placeholder="user@company.com" maxlength="200"></div>
+      <div class="fg"><label class="flabel">初始密码</label><input class="finp" type="password" id="um-pass" placeholder="默认 123456" maxlength="128"></div>
+      <div class="fg"><label class="flabel">角色</label>
+        <select class="fsel" id="um-role"><option value="user">普通用户</option><option value="admin">管理员</option></select>
+      </div>
+      <div class="fg"><label class="flabel">操作权限</label>
+        <div style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap">
+          <label class="cb-row"><input type="checkbox" id="up-view" checked><span class="cb-lbl">查看</span></label>
+          <label class="cb-row"><input type="checkbox" id="up-submit" checked><span class="cb-lbl">提交</span></label>
+          <label class="cb-row"><input type="checkbox" id="up-edit"><span class="cb-lbl">编辑</span></label>
+          <label class="cb-row"><input type="checkbox" id="up-delete"><span class="cb-lbl">删除</span></label>
+        </div>
+      </div>
+      <div class="fg"><label class="flabel">项目访问限制</label>
+        <div style="font-size:11.5px;color:var(--text2);margin-bottom:8px">留空 = 全部项目；勾选 = 仅限所选项目</div>
+        <div id="um-projAccess" style="display:flex;flex-direction:column;gap:6px;max-height:140px;overflow-y:auto"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeOverlay('userOverlay')">取消</button>
+      <button class="btn btn-primary" onclick="saveUser()">创建用户</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Perms Modal -->
+<div class="overlay" id="editUserOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-hd"><h2 id="editUserTitle">编辑用户权限</h2><button class="modal-close" onclick="closeOverlay('editUserOverlay')">✕</button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <input type="hidden" id="eu-uid">
+      <div id="eu-feishu-info" style="display:none;padding:10px 12px;background:rgba(51,112,255,.08);border:1px solid rgba(51,112,255,.25);border-radius:6px;font-size:12.5px;color:#7ca4ff"></div>
+      <div class="fg"><label class="flabel">角色</label>
+        <select class="fsel" id="eu-role"><option value="user">普通用户</option><option value="admin">管理员</option></select>
+      </div>
+      <div class="fg"><label class="flabel">操作权限</label>
+        <div style="display:flex;gap:12px;margin-top:4px;flex-wrap:wrap">
+          <label class="cb-row"><input type="checkbox" id="eu-view"><span class="cb-lbl">查看</span></label>
+          <label class="cb-row"><input type="checkbox" id="eu-submit"><span class="cb-lbl">提交</span></label>
+          <label class="cb-row"><input type="checkbox" id="eu-edit"><span class="cb-lbl">编辑</span></label>
+          <label class="cb-row"><input type="checkbox" id="eu-delete"><span class="cb-lbl">删除</span></label>
+        </div>
+      </div>
+      <div class="fg" id="eu-pass-group"><label class="flabel">重置密码（留空不修改）</label>
+        <input class="finp" type="password" id="eu-pass" placeholder="输入新密码" maxlength="128">
+      </div>
+      <div class="fg"><label class="flabel">项目访问限制</label>
+        <div style="font-size:11.5px;color:var(--text2);margin-bottom:8px">留空 = 全部项目；勾选 = 仅限所选项目</div>
+        <div id="eu-projAccess" style="display:flex;flex-direction:column;gap:6px;max-height:140px;overflow-y:auto"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeOverlay('editUserOverlay')">取消</button>
+      <button class="btn btn-primary" onclick="saveEditUser()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Notify Modal -->
+<div class="overlay" id="notifyOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-hd"><h2>添加通知源</h2><button class="modal-close" onclick="closeOverlay('notifyOverlay')">✕</button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div class="fg"><label class="flabel">通知类型</label>
+        <select class="fsel" id="nm-type" onchange="updateNotifyForm()">
+          <option value="feishu">飞书机器人 Webhook</option>
+          <option value="email">邮箱</option>
+        </select>
+      </div>
+      <div class="fg"><label class="flabel">名称 <span class="req">*</span></label><input class="finp" id="nm-name" placeholder="安全团队飞书群" maxlength="100"></div>
+      <div id="nm-feishu-fields">
+        <div class="fg"><label class="flabel">Webhook URL <span class="req">*</span></label><input class="finp code-inp" id="nm-webhook" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/…" maxlength="2000"></div>
+      </div>
+      <div id="nm-email-fields" style="display:none">
+        <div class="fg"><label class="flabel">邮箱地址 <span class="req">*</span></label><input class="finp" id="nm-email-addr" placeholder="security@company.com" maxlength="200"></div>
+      </div>
+      <div class="fg"><label class="flabel">备注</label><input class="finp" id="nm-note" placeholder="用途说明…" maxlength="500"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeOverlay('notifyOverlay')">取消</button>
+      <button class="btn btn-primary" onclick="saveNotifySource()">添加</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+'use strict';
+
+// ══════════ XSS 安全：所有动态内容必须经过此函数 ══════════
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+// 安全设置纯文本（不使用 innerHTML）
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val ?? '';
+}
+// 安全创建 data: 属性（inline style 中的颜色仅允许 #rrggbb）
+function safeColor(c) {
+  return /^#[0-9a-fA-F]{6}$/.test(c) ? c : '#58a6ff';
+}
+
+// ══════════ STATE ══════════
+let currentUser = null;
+let currentView = 'dashboard';
+let PROJECTS = [];
+let NOTIFY_SOURCES = [];
+
+// ══════════ API ══════════
+async function api(method, path, body) {
+  const opts = { method, headers:{'Content-Type':'application/json'}, credentials:'include' };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  const r = await fetch('/api' + path, opts);
+  const text = await r.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch(e) {
+    // 服务器返回了非 JSON（如 HTML 错误页），把原始内容打印到控制台帮助排查
+    console.error('[API Error] ' + method + ' /api' + path + ' -> HTTP ' + r.status);
+    console.error('[API Raw Response]', text.substring(0, 500));
+    throw new Error('服务器返回异常（HTTP ' + r.status + '），请查看浏览器控制台或服务器日志');
+  }
+  if (!r.ok) throw new Error(data.error || '请求失败');
+  return data;
+}
+const GET  = p    => api('GET',    p);
+const POST = (p,b)=> api('POST',   p, b);
+const PUT  = (p,b)=> api('PUT',    p, b);
+const DEL  = p    => api('DELETE', p);
+
+// ══════════ AUTH ══════════
+async function doLogin() {
+  const u = document.getElementById('lUser').value.trim();
+  const p = document.getElementById('lPass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.style.display = 'none';
+  try {
+    const res = await POST('/auth/login', {username: u, password: p});
+    currentUser = res.user;
+    showApp();
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+
+async function doFeishuLogin() {
+  try {
+    const res = await GET('/auth/feishu/url');
+    window.location.href = res.url;
+  } catch(e) { toast('飞书登录失败: ' + e.message, 'e'); }
+}
+
+async function doLogout() {
+  try { await POST('/auth/logout', {}); } catch(_) {}
+  currentUser = null;
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('sidebar').style.display = 'none';
+  document.getElementById('main').style.display = 'none';
+}
+
+async function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'flex';
+  document.getElementById('main').style.display = 'flex';
+  const u = currentUser;
+  setText('sbName', u.display_name || u.username);
+  setText('sbRole', u.role.toUpperCase());
+
+  const sbAva = document.getElementById('sbAva');
+  if (u.feishu_avatar) {
+    sbAva.innerHTML = `<img src="${esc(u.feishu_avatar)}" alt="">`;
+    sbAva.style.background = 'transparent';
+  } else {
+    const colors = ['#58a6ff','#3fb950','#bc8cff','#e3b341','#f78166','#39c5cf'];
+    sbAva.style.background = colors[u.username.charCodeAt(0) % colors.length];
+    sbAva.textContent = (u.display_name || u.username)[0].toUpperCase();
+  }
+
+  applyUserPerms();
+
+  await loadProjects();
+  await loadNotifySources();
+
+  // Handle feishu redirect to specific vuln
+  const params = new URLSearchParams(window.location.search);
+  const vulnId = params.get('vuln_id');
+  const feishuErr = params.get('feishu_error');
+  if (feishuErr) { toast('飞书登录错误: ' + esc(feishuErr), 'w'); history.replaceState({}, '', '/'); }
+  if (vulnId) {
+    history.replaceState({}, '', '/');
+    nav('vulnList', document.getElementById('nav-vulnList'));
+    setTimeout(() => openDetail(parseInt(vulnId)), 300);
+  } else {
+    nav('dashboard', document.getElementById('nav-dashboard'));
+  }
+}
+
+// ══════════ NAV ══════════
+const PAGE_META = {
+  pending:   {title:'等待授权',    sub:'pending · awaiting admin approval'},
+  dashboard: {title:'仪表盘',      sub:'dashboard · overview'},
+  vulnList:  {title:'漏洞列表',    sub:'vulnerabilities · list'},
+  submit:    {title:'提交漏洞',    sub:'submit · new vulnerability'},
+  projects:  {title:'项目管理',    sub:'admin · projects'},
+  users:     {title:'用户权限',    sub:'admin · users'},
+  notify:    {title:'通知配置',    sub:'admin · notification sources'},
+};
+// ══════════ 移动端侧边栏控制 ══════════
+function toggleSidebar() {
+  const sb   = document.getElementById('sidebar');
+  const mask = document.getElementById('sidebarMask');
+  const hbg  = document.getElementById('hamburger');
+  const open = sb.classList.contains('mobile-open');
+  if (open) {
+    sb.classList.remove('mobile-open');
+    mask.classList.remove('show');
+    hbg.classList.remove('open');
+  } else {
+    sb.classList.add('mobile-open');
+    mask.classList.add('show');
+    hbg.classList.add('open');
+  }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebarMask').classList.remove('show');
+  document.getElementById('hamburger').classList.remove('open');
+}
+
+// 静默刷新用户权限（从 DB 获取最新数据），并更新 UI 导航权限
+async function syncUser() {
+  try {
+    const fresh = await GET('/auth/me');
+    const changed = JSON.stringify(fresh.perms) !== JSON.stringify(currentUser.perms)
+                 || fresh.role !== currentUser.role;
+    currentUser = fresh;
+    if (changed) applyUserPerms();
+  } catch(_) {}
+}
+
+// 根据当前 currentUser 权限更新导航栏显示
+function applyUserPerms() {
+  const u = currentUser;
+  const canSubmit = u.perms.submit;
+  const isAdmin   = u.role === 'admin';
+  document.getElementById('nav-submit').style.display  = canSubmit ? 'flex'  : 'none';
+  document.getElementById('topSubmitBtn').style.display = canSubmit ? 'inline-flex' : 'none';
+  document.getElementById('adminNav').style.display    = isAdmin   ? 'block' : 'none';
+}
+
+async function nav(view, el) {
+  // 每次导航都静默同步一次最新权限
+  await syncUser();
+
+  // 若用户无任何权限，强制显示待授权页
+  const u = currentUser;
+  const hasAnyPerm = u.role === 'admin' || Object.values(u.perms).some(Boolean);
+  if (!hasAnyPerm && view !== 'pending') {
+    view = 'pending';
+    el = null;
+  }
+
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  closeSidebar(); // 移动端：点击导航后自动收起侧边栏
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const ve = document.getElementById('view-'+view);
+  if (ve) ve.classList.add('active');
+  currentView = view;
+  const m = PAGE_META[view] || {};
+  setText('pgTitle', m.title || view);
+  setText('pgSub',   m.sub   || '');
+  if (view==='pending') {
+    setText('pendingUsername', u.display_name || u.username);
+    setText('pollMsg', '');
+  }
+  else if (view==='dashboard')  renderDashboard();
+  else if (view==='vulnList') renderVulnList();
+  else if (view==='submit')   { resetForm(); buildNotifyItems(); }
+  else if (view==='projects') renderProjects();
+  else if (view==='users')    renderUsers();
+  else if (view==='notify')   renderNotifySources();
+}
+
+async function refreshCurrentView() {
+  await nav(currentView, document.getElementById('nav-'+currentView));
+  toast('数据已刷新','s');
+}
+
+// 待授权页：手动点击检查权限是否已更新
+async function pollPermissions() {
+  setText('pollMsg', '检查中…');
+  await syncUser();
+  const u = currentUser;
+  const hasAnyPerm = u.role === 'admin' || Object.values(u.perms).some(Boolean);
+  if (hasAnyPerm) {
+    toast('权限已更新，正在跳转…', 's');
+    setTimeout(() => nav('dashboard', document.getElementById('nav-dashboard')), 500);
+  } else {
+    setText('pollMsg', '管理员尚未授权，请稍后再试');
+  }
+}
+
+// ══════════ FEISHU CONFIG ══════════
+async function checkFeishuConfig() {
+  try {
+    const cfg = await GET('/auth/feishu/config');
+    if (cfg.enabled) {
+      document.getElementById('feishuDivider').style.display = 'flex';
+      document.getElementById('feishuLoginBtn').style.display = 'flex';
+    }
+  } catch(_) {}
+}
+
+// ══════════ PROJECTS ══════════
+async function loadProjects() {
+  PROJECTS = await GET('/projects');
+  const opts = PROJECTS.map(p=>`<option value="${esc(String(p.id))}">${esc(p.name)}</option>`).join('');
+  ['fProj','vsProj','dashProjFilter'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    const first = el.options[0].outerHTML;
+    el.innerHTML = first + opts;
+  });
+}
+
+async function renderProjects() {
+  await loadProjects();
+  const grid = document.getElementById('projGrid');
+  if (!PROJECTS.length) { grid.innerHTML = '<div class="empty"><div class="ei">📁</div><p>暂无项目</p></div>'; return; }
+  grid.innerHTML = PROJECTS.map(p => {
+    const color = safeColor(p.color);
+    const membersText = p.members.map(m=>esc(m)).join('、') || '暂无';
+    return `
+    <div class="proj-card">
+      <div class="proj-card-top" style="background:${color}"></div>
+      <div class="proj-card-body">
+        <div class="proj-card-name">${esc(p.name)}</div>
+        <div class="proj-card-desc">${esc(p.description || '暂无描述')}</div>
+        <div class="proj-meta">
+          <span>👥 成员：${membersText}</span>
+          <span>🐛 漏洞数：<b style="color:var(--text);font-family:var(--mono)">${esc(String(p.vuln_count))}</b></span>
+        </div>
+      </div>
+      <div class="proj-card-ft">
+        <button class="btn btn-ghost btn-sm" onclick="openEditProject(${p.id})">编辑</button>
+        <button class="btn btn-danger btn-sm" data-proj-id="${p.id}" data-proj-name="${esc(p.name)}" onclick="deleteProjectBtn(this)">删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let editingProjId = null;
+function openAddProject() {
+  editingProjId = null;
+  document.getElementById('projModalTitle').textContent = '新建项目';
+  document.getElementById('pm-name').value = '';
+  document.getElementById('pm-desc').value = '';
+  document.getElementById('pm-color').value = '#58a6ff';
+  document.getElementById('pm-members').innerHTML = '';
+  document.querySelectorAll('#pm-colors .color-opt').forEach((c,i)=>c.classList.toggle('selected',i===0));
+  openOverlay('projOverlay');
+}
+function openEditProject(id) {
+  editingProjId = id;
+  const p = PROJECTS.find(x=>x.id===id);
+  if (!p) return;
+  document.getElementById('projModalTitle').textContent = '编辑项目 · ' + p.name;
+  document.getElementById('pm-name').value = p.name;
+  document.getElementById('pm-desc').value = p.description||'';
+  document.getElementById('pm-color').value = p.color;
+  document.querySelectorAll('#pm-colors .color-opt').forEach(c=>{
+    const onclick = c.getAttribute('onclick')||'';
+    c.classList.toggle('selected', onclick.includes(p.color));
+  });
+  document.getElementById('pm-members').innerHTML = p.members.map(m=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--bg3);border-radius:5px;border:1px solid var(--border)">
+      <span style="flex:1;font-size:13px" class="member-name">${esc(m)}</span>
+      <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">✕</button>
+    </div>`).join('');
+  openOverlay('projOverlay');
+}
+function pickColor(el, color) {
+  document.querySelectorAll('#pm-colors .color-opt').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('pm-color').value = color;
+}
+function addProjectMember() {
+  const inp = document.getElementById('pm-newMember');
+  const name = inp.value.trim().substring(0,50);
+  if (!name) return;
+  const div = document.createElement('div');
+  div.style.cssText='display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--bg3);border-radius:5px;border:1px solid var(--border)';
+  const span = document.createElement('span');
+  span.className = 'member-name';
+  span.style.cssText = 'flex:1;font-size:13px';
+  span.textContent = name;
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-danger btn-sm';
+  btn.textContent = '✕';
+  btn.onclick = ()=>div.remove();
+  div.appendChild(span); div.appendChild(btn);
+  document.getElementById('pm-members').appendChild(div);
+  inp.value = '';
+}
+async function saveProject() {
+  const name = document.getElementById('pm-name').value.trim();
+  if (!name) { toast('项目名称不能为空','e'); return; }
+  // Read member names from textContent (safe, not innerHTML)
+  const members = [...document.querySelectorAll('#pm-members .member-name')].map(s=>s.textContent.trim()).filter(Boolean);
+  const body = {name, description:document.getElementById('pm-desc').value, color:document.getElementById('pm-color').value, members};
+  try {
+    if (editingProjId) await PUT(`/projects/${editingProjId}`, body);
+    else await POST('/projects', body);
+    closeOverlay('projOverlay');
+    await renderProjects();
+    toast(editingProjId?'项目已更新':'项目已创建','s');
+  } catch(e) { toast(e.message,'e'); }
+}
+function deleteProjectBtn(btn) {
+  const id   = parseInt(btn.dataset.projId);
+  const name = btn.dataset.projName;
+  deleteProject(id, name);
+}
+async function deleteProject(id, name) {
+  if (!confirm(`确认删除项目「${name}」？`)) return;
+  try {
+    await DEL(`/projects/${id}`);
+    await renderProjects();
+    toast('项目已删除','s');
+  } catch(e) { toast('删除失败: ' + e.message, 'e'); }
+}
+
+// ══════════ VULNS ══════════
+let VULNS = [];
+async function renderVulnList() {
+  const q    = document.getElementById('vsSearch')?.value || '';
+  const proj = document.getElementById('vsProj')?.value   || '';
+  const sev  = document.getElementById('vsSev')?.value    || '';
+  const sta  = document.getElementById('vsSta')?.value    || '';
+  const url  = `/vulns?q=${encodeURIComponent(q)}&project=${proj}&severity=${encodeURIComponent(sev)}&status=${encodeURIComponent(sta)}`;
+  VULNS = await GET(url);
+  setText('vulnCount', VULNS.length);
+  setText('nb-open', VULNS.filter(v=>v.status==='待修复').length);
+
+  const u = currentUser;
+  const canDel = u.perms.delete || u.role==='admin';
+  const tbody = document.getElementById('vulnTbody');
+  if (!VULNS.length) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="ei">🔍</div><p>暂无漏洞数据</p></div></td></tr>';
+    return;
+  }
+  // Build rows safely
+  tbody.innerHTML = '';
+  VULNS.forEach(v => {
+    const tr = document.createElement('tr');
+    tr.onclick = ()=>openDetail(v.id);
+    tr.innerHTML = `
+      <td data-label="ID"><span class="tag">${esc(v.vuln_id)}</span></td>
+      <td data-label="标题" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(v.title)}">${esc(v.title)}</td>
+      <td data-label="级别">${sevBadge(v.severity)}</td>
+      <td data-label="CVSS">${cvssDisp(v.cvss)}</td>
+      <td data-label="项目">${projTag(v.project_name, v.project_color)}</td>
+      <td data-label="组件" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2);font-size:12px" title="${esc(v.component)}">${esc(v.component)}</td>
+      <td data-label="状态">${staBadge(v.status)}</td>
+      <td data-label="责任人" style="color:var(--text2);font-size:12px">${esc(v.assignee||'-')}</td>
+      <td data-label="日期" style="color:var(--text3);font-size:11.5px;font-family:var(--mono)">${esc((v.created_at||'').substring(0,10))}</td>
+      <td class="actions" onclick="event.stopPropagation()">
+        ${canDel?`<button class="btn btn-danger btn-sm" onclick="deleteVuln(${v.id})">删除</button>`:''}
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function deleteVuln(id) {
+  if (!confirm('确认删除该漏洞？')) return;
+  await DEL(`/vulns/${id}`);
+  await renderVulnList();
+  toast('漏洞已删除','s');
+}
+
+async function openDetail(id) {
+  const v = await GET(`/vulns/${id}`);
+  document.getElementById('dmId').textContent  = v.vuln_id;
+  document.getElementById('dmSev').innerHTML   = sevBadge(v.severity);
+  document.getElementById('dmSta').innerHTML   = staBadge(v.status);
+  document.getElementById('dmTitle').textContent = v.title;
+  document.getElementById('dmDesc').textContent  = v.description;
+
+  if (v.poc) {
+    document.getElementById('dmPocSec').style.display='';
+    document.getElementById('dmPoc').textContent = v.poc;
+  } else document.getElementById('dmPocSec').style.display='none';
+
+  if (v.fix_suggestion) {
+    document.getElementById('dmFixSec').style.display='';
+    document.getElementById('dmFixTxt').textContent = v.fix_suggestion;
+  } else document.getElementById('dmFixSec').style.display='none';
+
+  const color = safeColor(v.project_color);
+  document.getElementById('dmMeta').innerHTML = `
+    <div class="dm-item"><label>CVSS</label><div class="val">${cvssDisp(v.cvss)}</div></div>
+    <div class="dm-item"><label>项目</label><div class="val">${projTag(v.project_name, v.project_color)}</div></div>
+    <div class="dm-item"><label>影响组件</label><div class="val" style="font-family:var(--mono);font-size:12px">${esc(v.component)}</div></div>
+    <div class="dm-item"><label>责任人</label><div class="val">${esc(v.assignee||'-')}</div></div>
+    <div class="dm-item"><label>提交时间</label><div class="val" style="font-family:var(--mono);font-size:12px">${esc((v.created_at||'').substring(0,16))}</div></div>
+    <div class="dm-item"><label>修复时间</label><div class="val" style="font-family:var(--mono);font-size:12px">${esc(v.fixed_at?(v.fixed_at.substring(0,16)):'-')}</div></div>`;
+
+  const u = currentUser;
+  const canEdit = u.perms.edit || u.role==='admin';
+  if (canEdit) {
+    const p = PROJECTS.find(x=>x.id===v.project_id);
+    const members = p ? p.members : [];
+    const statusOpts = ['待修复','修复中','已修复','已关闭'].map(s=>`<option${s===v.status?' selected':''}>${esc(s)}</option>`).join('');
+    const assignOpts = members.map(m=>`<option${m===v.assignee?' selected':''}>${esc(m)}</option>`).join('');
+    document.getElementById('dmEditBar').innerHTML = `
+      <div class="edit-bar">
+        <div class="eb-group"><div class="eb-lbl">状态</div>
+          <select class="fsel" id="dmStatus" style="width:130px">${statusOpts}</select>
+        </div>
+        <div class="eb-group"><div class="eb-lbl">责任人</div>
+          <select class="fsel" id="dmAssignee" style="width:130px"><option value="">-</option>${assignOpts}</select>
+        </div>
+        <div class="eb-group"><div class="eb-lbl">CVSS</div>
+          <input class="finp" id="dmCvss" type="number" min="0" max="10" step="0.1" value="${esc(String(v.cvss))}" style="width:80px">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveDetail(${v.id})">保存</button>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="openEditFull(${v.id})">完整编辑</button>
+      </div>`;
+  } else {
+    document.getElementById('dmEditBar').innerHTML = '';
+  }
+  openOverlay('detailOverlay');
+}
+
+async function saveDetail(id) {
+  const status   = document.getElementById('dmStatus')?.value;
+  const assignee = document.getElementById('dmAssignee')?.value;
+  const cvss     = parseFloat(document.getElementById('dmCvss')?.value || 0);
+  const v        = await GET(`/vulns/${id}`);
+  await PUT(`/vulns/${id}`, {...v, status, assignee, cvss});
+  closeOverlay('detailOverlay');
+  toast('漏洞状态已更新','s');
+  if (currentView==='vulnList')    renderVulnList();
+  else if (currentView==='dashboard') renderDashboard();
+}
+
+async function openEditFull(id) {
+  const v = await GET(`/vulns/${id}`);
+  closeOverlay('detailOverlay');
+
+  // 先跳页（nav 会 resetForm 清空字段），等 nav 完成后再填入数据
+  await nav('submit', document.getElementById('nav-submit'));
+
+  // 填入漏洞原始数据
+  document.getElementById('fTitle').value = v.title;
+  document.getElementById('fComp').value  = v.component;
+  document.getElementById('fDesc').value  = v.description;
+  document.getElementById('fPoc').value   = v.poc  || '';
+  document.getElementById('fFix').value   = v.fix_suggestion || '';
+
+  // 严重级别
+  const sevMap = {'严重':'critical','高危':'high','中危':'medium','低危':'low'};
+  document.getElementById('fSev').value = v.severity;
+  document.querySelectorAll('.sev-opt').forEach(o => {
+    o.className = 'sev-opt';
+    if (o.textContent.trim() === v.severity)
+      o.classList.add(`sel-${sevMap[v.severity] || 'medium'}`);
+  });
+
+  // CVSS
+  document.getElementById('cvssRange').value = v.cvss;
+  updateCVSS(v.cvss);
+
+  // 项目 → 加载成员 → 设置责任人（必须等 loadProjectAssignees 完成）
+  document.getElementById('fProj').value = v.project_id;
+  await loadProjectAssignees();
+  document.getElementById('fAssignee').value = v.assignee || '';
+
+  // 标记为编辑模式
+  document.getElementById('fTitle').dataset.editId = v.id;
+}
+
+// ══════════ SUBMIT FORM ══════════
+function pickSev(el, sev, cls) {
+  document.querySelectorAll('.sev-opt').forEach(o=>o.className='sev-opt');
+  el.classList.add(`sel-${cls}`);
+  document.getElementById('fSev').value = sev;
+}
+function updateCVSS(val) {
+  const v    = parseFloat(val);
+  const disp = document.getElementById('cvssDisp');
+  disp.textContent = v.toFixed(1);
+  const cls  = v>=9?'cv-c':v>=7?'cv-h':v>=4?'cv-m':'cv-l';
+  disp.className = 'cvss-big '+cls;
+}
+async function loadProjectAssignees() {
+  const pid = parseInt(document.getElementById('fProj').value);
+  const p   = PROJECTS.find(x=>x.id===pid);
+  const sel = document.getElementById('fAssignee');
+  sel.innerHTML = '<option value="">请选择责任人…</option>';
+  if (p) p.members.forEach(m=>{ const o=document.createElement('option'); o.textContent=m; sel.appendChild(o); });
+}
+function buildNotifyItems() {
+  const feishu = NOTIFY_SOURCES.filter(n=>n.type==='feishu'&&n.enabled);
+  const email  = NOTIFY_SOURCES.filter(n=>n.type==='email'&&n.enabled);
+  function renderItems(items, cid) {
+    const el = document.getElementById(cid);
+    if (!items.length) { el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0">暂无可用通知源</div>'; return; }
+    el.innerHTML='';
+    items.forEach(n=>{
+      const div = document.createElement('div');
+      div.className = 'notify-item';
+      div.id = `ni-${n.id}`;
+      const meta = n.value.length>40 ? n.value.substring(0,40)+'…' : n.value;
+      div.innerHTML = `
+        <input type="checkbox" class="ni-check" id="nc-${esc(String(n.id))}" onchange="updateNotifyCount()">
+        <div class="ni-name">${esc(n.name)}</div>
+        <div class="ni-meta">${esc(meta)}</div>`;
+      el.appendChild(div);
+    });
+    updateNotifyCount();
+  }
+  renderItems(feishu,'feishuItems');
+  renderItems(email, 'emailItems');
+}
+function updateNotifyCount() {
+  const fc = document.querySelectorAll('#feishuItems .ni-check:checked').length;
+  const ec = document.querySelectorAll('#emailItems  .ni-check:checked').length;
+  setText('feishuSelectedCount', `${fc} 个已选`);
+  setText('emailSelectedCount',  `${ec} 个已选`);
+  document.querySelectorAll('.notify-item').forEach(el=>{
+    el.classList.toggle('checked-item', el.querySelector('.ni-check')?.checked);
+  });
+}
+async function submitVuln() {
+  const title = document.getElementById('fTitle').value.trim();
+  const sev   = document.getElementById('fSev').value;
+  const comp  = document.getElementById('fComp').value.trim();
+  const desc  = document.getElementById('fDesc').value.trim();
+  const proj  = document.getElementById('fProj').value;
+  if (!title||!sev||!comp||!desc||!proj) { toast('请填写所有必填字段','e'); return; }
+  const notifySources = [...document.querySelectorAll('.ni-check:checked')].map(c=>parseInt(c.id.replace('nc-','')));
+  const body = {
+    title, severity:sev, cvss:parseFloat(document.getElementById('cvssRange').value),
+    project_id:parseInt(proj), assignee:document.getElementById('fAssignee').value,
+    component:comp, description:desc, poc:document.getElementById('fPoc').value,
+    fix_suggestion:document.getElementById('fFix').value,
+    notify_sources:notifySources,
+    notify_on_close:document.getElementById('notifyOnClose').checked
+  };
+  const editId = document.getElementById('fTitle').dataset.editId;
+  try {
+    if (editId) {
+      await PUT(`/vulns/${editId}`, body);
+      delete document.getElementById('fTitle').dataset.editId;
+      toast('漏洞信息已更新','s');
+    } else {
+      const res = await POST('/vulns', body);
+      toast(`漏洞 ${res.vuln_id} 已提交，通知正在发送…`,'s');
+    }
+    resetForm();
+    nav('vulnList', document.getElementById('nav-vulnList'));
+  } catch(e) { toast(e.message,'e'); }
+}
+function resetForm() {
+  ['fTitle','fComp','fDesc','fPoc','fFix'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  delete document.getElementById('fTitle').dataset.editId;
+  document.getElementById('fProj').value='';
+  document.getElementById('fAssignee').innerHTML='<option>请选择责任人…</option>';
+  document.querySelectorAll('.sev-opt').forEach(o=>o.className='sev-opt');
+  document.querySelectorAll('.sev-opt')[2]?.classList.add('sel-medium');
+  document.getElementById('fSev').value='中危';
+  document.getElementById('cvssRange').value=5;
+  updateCVSS(5);
+  document.querySelectorAll('.ni-check').forEach(c=>c.checked=false);
+  document.getElementById('notifyOnClose').checked=false;
+  updateNotifyCount();
+}
+
+// ══════════ DASHBOARD ══════════
+async function renderDashboard() {
+  const proj = document.getElementById('dashProjFilter')?.value||'';
+  setText('dashTime', new Date().toLocaleString('zh-CN'));
+  const d = await GET(`/dashboard?project=${proj}`);
+  setText('nb-open', d.open);
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card sc-total"><div class="stat-lbl">📊 漏洞总数</div><div class="stat-num">${esc(String(d.total))}</div><div class="stat-sub">all vulnerabilities</div></div>
+    <div class="stat-card sc-open"><div class="stat-lbl">🔴 待修复</div><div class="stat-num">${esc(String(d.open))}</div><div class="stat-sub">open · unpatched</div></div>
+    <div class="stat-card sc-fixing"><div class="stat-lbl">🟡 修复中</div><div class="stat-num">${esc(String(d.fixing))}</div><div class="stat-sub">in progress</div></div>
+    <div class="stat-card sc-fixed"><div class="stat-lbl">🟢 已修复</div><div class="stat-num">${esc(String(d.fixed))}</div><div class="stat-sub">patched</div></div>
+    <div class="stat-card sc-closed"><div class="stat-lbl">⚫ 已关闭</div><div class="stat-num">${esc(String(d.closed))}</div><div class="stat-sub">closed</div></div>`;
+
+  const sevColors={'严重':'#f85149','高危':'#e3b341','中危':'#d29922','低危':'#3fb950'};
+  const maxSev  = Math.max(...Object.values(d.by_severity),1);
+  const maxProj = Math.max(...d.by_project.map(p=>p.cnt),1);
+  const maxTrend= Math.max(...d.trend.map(t=>t.count),1);
+  document.getElementById('chartsRow').innerHTML = `
+    <div class="mini-chart">
+      <div class="mini-chart-title">按项目分布</div>
+      <div class="bar-chart-h">${d.by_project.map(p=>{
+        const c=safeColor(p.color);
+        return `<div class="bch-row">
+          <div class="bch-lbl" title="${esc(p.name)}">${esc(p.name)}</div>
+          <div class="bch-track"><div class="bch-fill" style="width:${Math.round(p.cnt/maxProj*100)}%;background:${c}"></div></div>
+          <div class="bch-num">${esc(String(p.cnt))}</div>
+        </div>`;}).join('')||'<div style="color:var(--text3);font-size:12px">暂无数据</div>'}
+      </div>
+    </div>
+    <div class="mini-chart">
+      <div class="mini-chart-title">按严重级别</div>
+      <div class="sev-donut">${Object.entries(d.by_severity).map(([sev,cnt])=>`
+        <div class="sev-row">
+          <div class="sev-dot" style="background:${sevColors[sev]||'#58a6ff'}"></div>
+          <div class="sev-name">${esc(sev)}</div>
+          <div class="sev-bar-bg"><div class="sev-bar-fill" style="width:${Math.round(cnt/maxSev*100)}%;background:${sevColors[sev]||'#58a6ff'}"></div></div>
+          <div class="sev-cnt">${esc(String(cnt))}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="mini-chart">
+      <div class="mini-chart-title">近8周趋势</div>
+      <div class="trend-bars">${d.trend.map(t=>`
+        <div class="trend-bar" style="height:${Math.max(3,Math.round(t.count/maxTrend*60))}px;background:var(--accent)" title="${esc(t.week)}: ${esc(String(t.count))}条"></div>`).join('')}
+      </div>
+      <div class="trend-labels">${d.trend.map(t=>`<div class="trend-lbl">${esc(t.week.slice(5))}</div>`).join('')}</div>
+    </div>`;
+
+  const recent = await GET('/vulns?');
+  const tbody  = document.getElementById('dashTbody');
+  tbody.innerHTML='';
+  recent.slice(0,8).forEach(v=>{
+    const tr=document.createElement('tr');
+    tr.onclick=()=>openDetail(v.id);
+    tr.innerHTML=`
+      <td data-label="ID"><span class="tag">${esc(v.vuln_id)}</span></td>
+      <td data-label="标题" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(v.title)}">${esc(v.title)}</td>
+      <td data-label="级别">${sevBadge(v.severity)}</td>
+      <td data-label="CVSS">${cvssDisp(v.cvss)}</td>
+      <td data-label="项目">${projTag(v.project_name,v.project_color)}</td>
+      <td data-label="状态">${staBadge(v.status)}</td>
+      <td data-label="责任人" style="color:var(--text2);font-size:12px">${esc(v.assignee||'-')}</td>
+      <td data-label="日期" style="color:var(--text3);font-size:11.5px;font-family:var(--mono)">${esc((v.created_at||'').substring(0,10))}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════ USERS ══════════
+let ALL_USERS = [];
+async function renderUsers() {
+  ALL_USERS = await GET('/users');
+  const el = document.getElementById('userListEl');
+  if (!ALL_USERS.length) { el.innerHTML='<div class="empty"><div class="ei">👤</div><p>暂无用户</p></div>'; return; }
+  const colors=['#58a6ff','#3fb950','#bc8cff','#e3b341','#f78166','#39c5cf'];
+  el.innerHTML='';
+  ALL_USERS.forEach(u=>{
+    const c = colors[u.username.charCodeAt(0)%colors.length];
+    const projNames = u.proj_access.map(pid=>{ const p=PROJECTS.find(x=>x.id===pid); return p?p.name:String(pid); });
+    const isFeishu  = u.auth_type==='feishu';
+    const row = document.createElement('div');
+    row.className='user-row';
+
+    let avaHtml;
+    if (isFeishu && u.feishu_avatar) {
+      avaHtml = `<div class="ava-sm"><img src="${esc(u.feishu_avatar)}" alt=""></div>`;
+    } else {
+      avaHtml = `<div class="ava-sm" style="background:${c}">${esc((u.display_name||u.username)[0].toUpperCase())}</div>`;
+    }
+
+    row.innerHTML = `
+      ${avaHtml}
+      <div class="uinfo">
+        <div class="un">${esc(u.display_name||u.username)}
+          ${u.role==='admin'?'<span style="font-size:10px;color:var(--accent);font-family:var(--mono)">[ADMIN]</span>':''}
+          <span class="auth-badge ${isFeishu?'auth-feishu':'auth-local'}">${isFeishu?'飞书':'本地'}</span>
+        </div>
+        <div class="ue">${esc(u.email||u.feishu_name||'-')}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div class="perm-tags">
+          <span class="pt ${u.perms.view?'pt-on':'pt-off'}">VIEW</span>
+          <span class="pt ${u.perms.submit?'pt-on':'pt-off'}">SUBMIT</span>
+          <span class="pt ${u.perms.edit?'pt-on':'pt-off'}">EDIT</span>
+          <span class="pt ${u.perms.delete?'pt-on':'pt-off'}">DELETE</span>
+        </div>
+        <div class="proj-restrict">
+          ${projNames.length
+            ? '🔒 仅限：'+projNames.map(n=>`<span class="proj-pill">${esc(n)}</span>`).join('')
+            : '🌐 全部项目'}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-left:auto">
+        <button class="btn btn-ghost btn-sm" onclick="openEditUser(${u.id})">编辑权限</button>
+        <button class="btn btn-danger btn-sm" data-uid="${u.id}" data-uname="${esc(u.display_name||u.username)}" onclick="deleteUserBtn(this)">删除</button>
+      </div>`;
+    el.appendChild(row);
+  });
+}
+
+function openAddUser() {
+  ['um-name','um-email','um-pass'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('um-role').value='user';
+  document.getElementById('up-view').checked=true;
+  document.getElementById('up-submit').checked=true;
+  document.getElementById('up-edit').checked=false;
+  document.getElementById('up-delete').checked=false;
+  const acc = document.getElementById('um-projAccess');
+  acc.innerHTML='';
+  PROJECTS.forEach(p=>{
+    const lbl=document.createElement('label'); lbl.className='cb-row';
+    lbl.innerHTML=`<input type="checkbox" class="proj-acc-cb" value="${p.id}"><span class="cb-lbl">${esc(p.name)}</span>`;
+    acc.appendChild(lbl);
+  });
+  openOverlay('userOverlay');
+}
+async function saveUser() {
+  const name = document.getElementById('um-name').value.trim();
+  const email= document.getElementById('um-email').value.trim();
+  if (!name||!email) { toast('用户名和邮箱不能为空','e'); return; }
+  const proj_access=[...document.querySelectorAll('#um-projAccess .proj-acc-cb:checked')].map(c=>parseInt(c.value));
+  try {
+    await POST('/users',{username:name,email,password:document.getElementById('um-pass').value||'123456',
+      role:document.getElementById('um-role').value,
+      perms:{view:document.getElementById('up-view').checked,submit:document.getElementById('up-submit').checked,
+             edit:document.getElementById('up-edit').checked,delete:document.getElementById('up-delete').checked},
+      proj_access});
+    closeOverlay('userOverlay');
+    await renderUsers();
+    toast(`用户 ${name} 已创建`,'s');
+  } catch(e) { toast(e.message,'e'); }
+}
+async function openEditUser(id) {
+  // 先清空所有 checkbox，防止上一次状态残留
+  ['eu-view','eu-submit','eu-edit','eu-delete'].forEach(cid => {
+    document.getElementById(cid).checked = false;
+  });
+  document.getElementById('eu-pass').value = '';
+  document.getElementById('eu-uid').value = id;
+
+  // 每次从服务端拉最新数据，不用缓存
+  let u;
+  try {
+    const users = await GET('/users');
+    u = users.find(x => x.id === id);
+    if (!u) { toast('用户不存在','e'); return; }
+    // 同步更新本地缓存
+    ALL_USERS = users;
+  } catch(e) {
+    toast('获取用户数据失败: ' + e.message, 'e');
+    return;
+  }
+
+  document.getElementById('editUserTitle').textContent = '编辑权限 · ' + (u.display_name || u.username);
+  document.getElementById('eu-role').value = u.role;
+
+  // 显式设置每个 checkbox（不依赖 HTML 属性，直接设置 DOM property）
+  document.getElementById('eu-view').checked   = !!u.perms.view;
+  document.getElementById('eu-submit').checked = !!u.perms.submit;
+  document.getElementById('eu-edit').checked   = !!u.perms.edit;
+  document.getElementById('eu-delete').checked = !!u.perms.delete;
+
+  // 飞书用户隐藏密码重置
+  const passGroup = document.getElementById('eu-pass-group');
+  passGroup.style.display = u.auth_type === 'feishu' ? 'none' : '';
+
+  // 显示飞书用户提示
+  const infoEl = document.getElementById('eu-feishu-info');
+  if (u.auth_type === 'feishu') {
+    infoEl.style.display = '';
+    infoEl.textContent = `🤖 飞书用户: ${u.feishu_name || u.username}`;
+  } else {
+    infoEl.style.display = 'none';
+  }
+
+  // 项目访问限制（用 DOM API 设置 checked，不用 innerHTML 拼 checked 属性）
+  const acc = document.getElementById('eu-projAccess');
+  acc.innerHTML = '';
+  PROJECTS.forEach(p => {
+    const lbl = document.createElement('label');
+    lbl.className = 'cb-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'proj-acc-cb';
+    cb.value = p.id;
+    cb.checked = u.proj_access.includes(p.id);  // DOM property，精确可靠
+    const span = document.createElement('span');
+    span.className = 'cb-lbl';
+    span.textContent = p.name;
+    lbl.appendChild(cb);
+    lbl.appendChild(span);
+    acc.appendChild(lbl);
+  });
+
+  openOverlay('editUserOverlay');
+}
+async function saveEditUser() {
+  const id = parseInt(document.getElementById('eu-uid').value);
+  if (!id) { toast('用户ID无效', 'e'); return; }
+
+  const acc  = [...document.querySelectorAll('#eu-projAccess .proj-acc-cb:checked')].map(c=>parseInt(c.value));
+  const pass = document.getElementById('eu-pass').value;
+
+  // 读取 DOM property（.checked），而非 HTML attribute
+  const body = {
+    role: document.getElementById('eu-role').value,
+    perms: {
+      view:   document.getElementById('eu-view').checked,
+      submit: document.getElementById('eu-submit').checked,
+      edit:   document.getElementById('eu-edit').checked,
+      delete: document.getElementById('eu-delete').checked,
+    },
+    proj_access: acc
+  };
+  if (pass) body.password = pass;
+
+  try {
+    await PUT(`/users/${id}`, body);
+    closeOverlay('editUserOverlay');
+    await renderUsers();
+    const permNames = Object.entries(body.perms).filter(([,v])=>v).map(([k])=>k).join(', ') || '无';
+    toast(`权限已更新：${permNames}`, 's');
+  } catch(e) {
+    toast('保存失败: ' + e.message, 'e');
+  }
+}
+function deleteUserBtn(btn) {
+  const id   = parseInt(btn.dataset.uid);
+  const name = btn.dataset.uname;
+  deleteUser(id, name);
+}
+async function deleteUser(id, name) {
+  if (id === currentUser.id) { toast('不能删除当前登录用户','w'); return; }
+  if (!confirm(`确认删除用户「${name}」？`)) return;
+  try {
+    await DEL(`/users/${id}`);
+    await renderUsers();
+    toast('用户已删除','s');
+  } catch(e) { toast('删除失败: ' + e.message, 'e'); }
+}
+
+// ══════════ NOTIFY SOURCES ══════════
+async function loadNotifySources() {
+  NOTIFY_SOURCES = await GET('/notify-sources');
+}
+async function renderNotifySources() {
+  await loadNotifySources();
+  const el = document.getElementById('ntfSources');
+  if (!NOTIFY_SOURCES.length) { el.innerHTML='<div class="empty"><div class="ei">🔔</div><p>暂无通知源，点击添加</p></div>'; return; }
+  el.innerHTML='';
+  NOTIFY_SOURCES.forEach(n=>{
+    const srcEl = document.createElement('div');
+    srcEl.className='ntf-src';
+    const metaShort = n.value.length>55 ? n.value.substring(0,55)+'…' : n.value;
+    srcEl.innerHTML=`
+      <div class="ntf-src-hd" onclick="toggleNtfExpand(this)">
+        <span class="ntf-src-ico">${n.type==='feishu'?'🤖':'📧'}</span>
+        <div class="ntf-src-info">
+          <div class="ntf-src-name">${esc(n.name)}</div>
+          <div class="ntf-src-url">${esc(metaShort)}</div>
+        </div>
+        <label class="ntf-label" onclick="event.stopPropagation()">
+          <div class="toggle-sw ${n.enabled?'on':''}" onclick="toggleNotifySrc(${n.id},this)"></div>
+          <span style="font-size:11.5px;color:var(--text2)" id="ntf-lbl-${n.id}">${n.enabled?'已启用':'已停用'}</span>
+        </label>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();testNotify(${n.id})">测试</button>
+        <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="event.stopPropagation();deleteNotifySrc(${n.id})">删除</button>
+      </div>
+      <div class="ntf-src-body" style="display:none">
+        <div class="fg"><label class="flabel">名称</label><input class="finp" value="${esc(n.name)}" onchange="updateNtfField(${n.id},'name',this.value)"></div>
+        <div class="fg"><label class="flabel">${n.type==='feishu'?'Webhook URL':'邮箱地址'}</label><input class="finp code-inp" value="${esc(n.value)}" onchange="updateNtfField(${n.id},'value',this.value)"></div>
+        <div class="fg"><label class="flabel">备注</label><input class="finp" value="${esc(n.note||'')}" onchange="updateNtfField(${n.id},'note',this.value)"></div>
+      </div>`;
+    el.appendChild(srcEl);
+  });
+}
+function toggleNtfExpand(hd) {
+  const body=hd.nextElementSibling;
+  body.style.display=body.style.display==='none'?'':'none';
+}
+async function toggleNotifySrc(id,el) {
+  const src=NOTIFY_SOURCES.find(n=>n.id===id);
+  if (!src) return;
+  src.enabled=!src.enabled;
+  await PUT(`/notify-sources/${id}`,src);
+  el.classList.toggle('on',src.enabled);
+  const lbl=document.getElementById(`ntf-lbl-${id}`);
+  if (lbl) lbl.textContent=src.enabled?'已启用':'已停用';
+  toast(`${src.name} 已${src.enabled?'启用':'停用'}`,'s');
+}
+async function updateNtfField(id, field, value) {
+  const src=NOTIFY_SOURCES.find(n=>n.id===id);
+  if (!src) return;
+  src[field]=value;
+  await PUT(`/notify-sources/${id}`,src);
+}
+async function testNotify(id) {
+  try {
+    const r = await POST(`/notify-sources/${id}/test`,{});
+    toast(r.message||'测试通知已发送','s');
+  } catch(e) { toast('发送失败: '+e.message,'e'); }
+}
+async function deleteNotifySrc(id) {
+  if (!confirm('确认删除该通知源？')) return;
+  await DEL(`/notify-sources/${id}`);
+  await renderNotifySources();
+  buildNotifyItems();
+  toast('通知源已删除','s');
+}
+function openAddNotify() { openOverlay('notifyOverlay'); }
+function updateNotifyForm() {
+  const t=document.getElementById('nm-type').value;
+  document.getElementById('nm-feishu-fields').style.display=t==='feishu'?'':'none';
+  document.getElementById('nm-email-fields').style.display=t==='email'?'':'none';
+}
+async function saveNotifySource() {
+  const t    = document.getElementById('nm-type').value;
+  const name = document.getElementById('nm-name').value.trim();
+  const val  = t==='feishu' ? document.getElementById('nm-webhook').value.trim() : document.getElementById('nm-email-addr').value.trim();
+  if (!name||!val) { toast('请填写名称和地址','e'); return; }
+  await POST('/notify-sources',{name,type:t,value:val,note:document.getElementById('nm-note').value.trim()});
+  await loadNotifySources();
+  buildNotifyItems();
+  closeOverlay('notifyOverlay');
+  await renderNotifySources();
+  toast(`通知源「${name}」已添加`,'s');
+  ['nm-name','nm-webhook','nm-email-addr','nm-note'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ══════════ HELPERS — 所有 badge/tag 只输出白名单值 ══════════
+const SEV_MAP={
+  '严重':{cls:'sv-critical',lbl:'CRITICAL'},
+  '高危':{cls:'sv-high',    lbl:'HIGH'},
+  '中危':{cls:'sv-medium',  lbl:'MEDIUM'},
+  '低危':{cls:'sv-low',     lbl:'LOW'},
+};
+function sevBadge(s) {
+  const m=SEV_MAP[s]; if(!m) return '';
+  return `<span class="sev-badge ${m.cls}">${m.lbl}</span>`;
+}
+const STA_CLS={'待修复':'st-open','修复中':'st-fixing','已修复':'st-fixed','已关闭':'st-closed'};
+function staBadge(s) {
+  const cls=STA_CLS[s]; if(!cls) return `<span class="st-badge st-closed">${esc(s)}</span>`;
+  return `<span class="st-badge ${cls}"><span class="st-dot"></span>${esc(s)}</span>`;
+}
+function cvssClass(v) { return v>=9?'cv-c':v>=7?'cv-h':v>=4?'cv-m':'cv-l'; }
+function cvssDisp(v)  {
+  const n=parseFloat(v||0);
+  return `<span class="cvss-val ${cvssClass(n)}">${n.toFixed(1)}</span>`;
+}
+function projTag(name, color) {
+  if (!name) return '<span style="color:var(--text3)">-</span>';
+  const c=safeColor(color);
+  return `<span class="proj-tag" style="background:${c}20;color:${c};border:1px solid ${c}40">${esc(name)}</span>`;
+}
+
+function openOverlay(id)  { document.getElementById(id)?.classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id)?.classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }));
+
+function toast(msg, type='i') {
+  const icons={s:'✅',e:'❌',i:'ℹ️',w:'⚠️'};
+  const el=document.createElement('div');
+  el.className=`toast t${type}`;
+  const icon=document.createElement('span'); icon.textContent=icons[type]||'ℹ️';
+  const txt =document.createElement('span'); txt.textContent=msg;
+  el.appendChild(icon); el.appendChild(txt);
+  document.getElementById('toastStack').appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+// ══════════ INIT ══════════
+(async function init() {
+  checkFeishuConfig();
+  // Handle feishu error before login
+  const params = new URLSearchParams(window.location.search);
+  const fErr = params.get('feishu_error');
+  if (fErr) { history.replaceState({}, '', '/'); }
+  try {
+    const user = await GET('/auth/me');
+    currentUser = user;
+    showApp();
+  } catch(_) { /* show login */ }
+})();
+</script>
+</body>
+</html>
