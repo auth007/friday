@@ -1,4 +1,4 @@
-# 🛡️ VulnTrack - 漏洞管理平台
+# 🛡️ Friday - 漏洞管理平台
 
 > 基于 Python Flask + SQLite 的轻量级企业漏洞管理系统
 
